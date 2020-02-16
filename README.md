@@ -22,3 +22,4 @@ $grid = new Grid(new Role());
 $grid->column('name', '类别')
      ->relate('topics', ['id', 'title'=>'话题']);
 ```
+![example.gif](https://github.com/zhaiduting/column-relation/blob/master/example.gif)
