@@ -1,0 +1,23 @@
+{
+    "name": "zhaiduting/column-relation",
+    "description": "column-relation extension for laravel-admin",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "zhaiduting",
+            "email": "zhaiduting@163.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "encore/laravel-admin": "~1.6"
+	},
+    "autoload": {
+        "psr-4": {
+            "Zhaiduting\\ColumnRelation\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
