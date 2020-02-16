@@ -17,7 +17,7 @@ Column::extend('relate', Relate::class);
 ```
 // Use relate(..) in a controller of admin as follows
 
-$grid = new Grid(new Role());
+$grid = new Grid(new Category());
 
 $grid->column('name', '类别')
      ->relate('topics', ['id', 'title'=>'话题']);
