@@ -8,10 +8,12 @@ use Encore\Admin\Widgets\Table;
 
 class Relate extends AbstractDisplayer
 {
+    protected $page_name;
     protected $models, $pagination, $bag, $html;
 
     public function display(string $relationShip = '', array $tableHeader = [] , callable $callback = null, int $perPage = 4)
     {
+        $this->make_page_name();
         $this->make_models_and_pagination($relationShip, $perPage);
         $this->make_bag($tableHeader, $callback);
         $this->make_html();
@@ -19,9 +21,12 @@ class Relate extends AbstractDisplayer
         return $this->html;
     }
 
+    protected function make_page_name(){
+        $this->page_name= $this->column->getName(). $this->getKey();
+    }
     protected function make_models_and_pagination($relationShip, $perPage){
         $this->models= $this->row->$relationShip()
-            ->paginate($perPage, ['*'], 'row'. $this->getKey())
+            ->paginate($perPage, ['*'], $this->page_name)
             ->appends('page', request('page'));
         $this->pagination= str_replace('pagination', 'pagination pagination-sm no-margin', $this->models->links());
     }
@@ -85,7 +90,7 @@ class Relate extends AbstractDisplayer
                 $('i', this).toggleClass('fa-angle-double-down fa-angle-double-up');
             });
         ";
-        if(request("row{$this->getKey()}")) {
+        if(request($this->page_name)) {
             //取消内联表格的第一个入场动画
             //保持内联表格为展开状态
             //保证内联表格位于视窗之内
@@ -118,6 +123,6 @@ class Relate extends AbstractDisplayer
 
     protected function getElementClass()
     {
-        return "grid-expand-{$this->grid->getGridRowName()}-{$this->getKey()}";
+        return "grid-expand-{$this->grid->getGridRowName()}-{$this->page_name}";
     }
 }
