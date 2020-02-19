@@ -8,12 +8,12 @@ use Encore\Admin\Widgets\Table;
 
 class Relate extends AbstractDisplayer
 {
-    protected $page_name;
-    protected $models, $pagination, $bag, $html;
+    protected $uid, $models, $pagination, $bag, $html;
+    public static $container= '#pjax-container';
 
     public function display(string $relationShip = '', array $tableHeader = [] , callable $callback = null, int $perPage = 4)
     {
-        $this->make_page_name();
+        $this->make_uid();
         $this->make_models_and_pagination($relationShip, $perPage);
         $this->make_bag($tableHeader, $callback);
         $this->make_html();
@@ -21,12 +21,12 @@ class Relate extends AbstractDisplayer
         return $this->html;
     }
 
-    protected function make_page_name(){
-        $this->page_name= $this->column->getName(). $this->getKey();
+    protected function make_uid(){
+        $this->uid= $this->column->getName(). $this->getKey();
     }
     protected function make_models_and_pagination($relationShip, $perPage){
         $this->models= $this->row->$relationShip()
-            ->paginate($perPage, ['*'], $this->page_name)
+            ->paginate($perPage, ['*'], $this->uid)
             ->appends('page', request('page'));
         $this->pagination= str_replace('pagination', 'pagination pagination-sm no-margin', $this->models->links());
     }
@@ -49,17 +49,20 @@ class Relate extends AbstractDisplayer
     }
     protected function make_html(){
         if($this->models->count()){
-            $key = $this->column->getName().'-'.$this->getKey();
+            $uid = $this->uid;
             $html= ($this->bag)();
             $html="
-                <span class='{$this->getElementClass()}' data-inserted='0' data-key='{$key}' data-toggle='collapse' data-target='#grid-collapse-{$key}'>
+                <span id='grid-button-{$uid}' data-inserted='0' data-uid='{$uid}' data-toggle='collapse' data-target='#grid-collapse-{$uid}'>
                    <a href='javascript:void(0)' style='color:inherit'>{$this->value}&nbsp;&nbsp;<i class='fa fa-angle-double-down'></i></a>
                 </span>
-                <template class='grid-expand-{$key}'>
-                    <div id='grid-collapse-{$key}' class='collapse'>
-                        <div style='margin-top:20px'>$html</div>
+                <div id='grid-template-{$uid}' style='display:none'>$html</div>
+                <div id='grid-expand-{$uid}' style='display:none'>
+                    <div id='grid-collapse-{$uid}' class='collapse'>
+                        <div style='margin-top:20px'>
+                            <column-relation :template-id=`grid-template-{$uid}`></column-relation>
+                        </div>
                     </div>
-                </template>
+                </div>
             ";
         }else{
             $html= $this->value;
@@ -72,17 +75,16 @@ class Relate extends AbstractDisplayer
         $this->html= $html;
     }
     protected function make_script(){
+        $container= self::$container;
         $script= "
-            $('.{$this->getElementClass()}').on('click', function () {
-                
+            $('#grid-button-{$this->uid}').on('click', function () {
                 if ($(this).data('inserted') == '0') {
-                
-                    var key = $(this).data('key');
+                    var uid = $(this).data('uid');
                     var row = $(this).closest('tr');
-                    var html = $('template.grid-expand-'+key).html();
-                    var bgcolor= $('.content-wrapper').css('background-color')
+                    var html = $('#grid-expand-'+uid).remove().html();
+                    var bgcolor= $('{$container}').css('background-color')
             
-                    row.after(`<tr style='background-color:\${bgcolor}'><td colspan='100' style='padding:0 !important; border:0;'>\${html}</td></tr>`);
+                    row.after(`<tr data-pjax-container='1' style='background-color:\${bgcolor}'><td colspan='100' style='padding:0 !important; border:0;'>\${html}</td></tr>`);
             
                     $(this).data('inserted', 1);
                 }
@@ -90,22 +92,23 @@ class Relate extends AbstractDisplayer
                 $('i', this).toggleClass('fa-angle-double-down fa-angle-double-up');
             });
         ";
-        if(request($this->page_name)) {
+        if(request($this->uid)) {
             //取消内联表格的第一个入场动画
             //保持内联表格为展开状态
             //保证内联表格位于视窗之内
             $script .= "
                 (function(){
-                    var button= $('.{$this->getElementClass()}')
-                        .attr('data-toggle', '').trigger('click')
-                        .attr('data-toggle', 'collapse');
-                    var target= $(button.data('target')).addClass('collapse in');
-                    
-                    if(!target.offset()) return;
                     setTimeout(()=>{
+                        var button= $('#grid-button-{$this->uid}')
+                            .attr('data-toggle', '').trigger('click')
+                            .attr('data-toggle', 'collapse');
+                        var target= $(button.data('target')).addClass('collapse in');
+                    
+                        if(!target.offset()) return;
                         var target_top= target.offset().top;
                         var target_height= target.height();
                         var window_height= $(window).height();
+                        
                         if(target_top + target_height < window_height)
                             return;
                         var y= window_height - target_height;
@@ -114,15 +117,25 @@ class Relate extends AbstractDisplayer
                         }else{
                             $(window).scrollTop(target_top + target_height - window_height + 4);
                         }
-                    }, 400);
+                    }, 0);
                 })();
             ";
         }
         Admin::script($script);
     }
-
-    protected function getElementClass()
-    {
-        return "grid-expand-{$this->grid->getGridRowName()}-{$this->page_name}";
-    }
 }
+
+(function(){
+    $space= 'vendor/zhaiduting';
+    $sym= 'column-relation';
+    $file= 'relate.js';
+    Admin::js("$space/$sym/$file");
+    Admin::script("new Vue({el: '#app'});");
+
+    $dir= public_path(). "/$space";
+    if(!file_exists("$dir/$sym/$file")){
+        if(!is_dir($dir))
+            mkdir($dir, 0777, true);
+        symlink(__DIR__."/../dist", "$dir/$sym");
+    }
+})();

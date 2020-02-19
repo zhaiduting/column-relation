@@ -2,7 +2,10 @@
 phpunit.phar
 /vendor
 /node_modules
+/public
 composer.phar
 composer.lock
 *.project
 .idea/
+/dist/*.txt
+mix-manifest.json
