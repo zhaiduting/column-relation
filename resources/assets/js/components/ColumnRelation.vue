@@ -8,7 +8,7 @@
     export default {
         name: "ColumnRelation",
         props: {
-            uid: ''
+            uid: '', rid: '',
         },
         data(){return{
             html: '',
@@ -23,20 +23,23 @@
                 return ret;
             },
             filterHtml(html){
-                let arr= html.split('<!--ColumnRelation'+ this.uid+ 'Start-->');
-                console.log(arr, '<!--ColumnRelation'+ this.uid+ 'Start-->', html.indexOf('<!--ColumnRelation'+ this.uid+ 'Start-->'));
-                arr= arr[1].split('<!--ColumnRelation'+ this.uid+ 'End-->');
-                // console.log(arr);
+                // console.dir(html);
+                console.log('<!--ColumnRelation'+ this.rid+ 'Start-->');
+                console.log('this.uid= ', this.uid)
+                let arr= html.split('<!--ColumnRelation'+ this.rid+ 'Start-->');
+                // console.log(arr, '<!--ColumnRelation'+ this.rid+ 'Start-->', html.indexOf('<!--ColumnRelation'+ this.rid+ 'Start-->'));
+                arr= arr[1].split('<!--ColumnRelation'+ this.rid+ 'End-->');
                 return arr[0];
             },
             handleClick($event){
                 let target= $event.target;
                 if(!$(target).closest('td').hasClass('column-relation-pagination'))
                     return;
+                console.log(target.href);
                 axios.get(target.href).then((res)=>{
+                    console.dir(res.data);
                     let html= this.filterHtml(res.data);
                     this.html= this.fixPagination(html);
-                    console.log(this.html);
                 })
             }
         },

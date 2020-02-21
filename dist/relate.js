@@ -1917,7 +1917,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ColumnRelation",
   props: {
-    uid: ''
+    uid: '',
+    rid: ''
   },
   data: function data() {
     return {
@@ -1936,10 +1937,12 @@ __webpack_require__.r(__webpack_exports__);
       return ret;
     },
     filterHtml: function filterHtml(html) {
-      var arr = html.split('<!--ColumnRelation' + this.uid + 'Start-->');
-      console.log(arr, '<!--ColumnRelation' + this.uid + 'Start-->', html.indexOf('<!--ColumnRelation' + this.uid + 'Start-->'));
-      arr = arr[1].split('<!--ColumnRelation' + this.uid + 'End-->'); // console.log(arr);
+      // console.dir(html);
+      console.log('<!--ColumnRelation' + this.rid + 'Start-->');
+      console.log('this.uid= ', this.uid);
+      var arr = html.split('<!--ColumnRelation' + this.rid + 'Start-->'); // console.log(arr, '<!--ColumnRelation'+ this.rid+ 'Start-->', html.indexOf('<!--ColumnRelation'+ this.rid+ 'Start-->'));
 
+      arr = arr[1].split('<!--ColumnRelation' + this.rid + 'End-->');
       return arr[0];
     },
     handleClick: function handleClick($event) {
@@ -1947,11 +1950,13 @@ __webpack_require__.r(__webpack_exports__);
 
       var target = $event.target;
       if (!$(target).closest('td').hasClass('column-relation-pagination')) return;
+      console.log(target.href);
       axios.get(target.href).then(function (res) {
+        console.dir(res.data);
+
         var html = _this.filterHtml(res.data);
 
         _this.html = _this.fixPagination(html);
-        console.log(_this.html);
       });
     }
   },
