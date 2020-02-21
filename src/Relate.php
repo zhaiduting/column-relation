@@ -8,13 +8,12 @@ use Encore\Admin\Widgets\Table;
 
 class Relate extends AbstractDisplayer
 {
-    protected $uid, $rid;
-    protected $models, $pagination, $bag, $html;
+    protected $uid, $models, $pagination, $bag, $html;
     public static $container= '#pjax-container';
 
     public function display(string $relationShip = '', array $tableHeader = [] , callable $callback = null, int $perPage = 4)
     {
-        $this->make_ids();
+        $this->make_uid();
         $this->make_models_and_pagination($relationShip, $perPage);
         $this->make_bag($tableHeader, $callback);
         $this->make_html();
@@ -22,15 +21,15 @@ class Relate extends AbstractDisplayer
         return $this->html;
     }
 
-    protected function make_ids(){
-        $name= $this->column->getName();
-        $this->uid= $name. $this->getKey();
-        $this->rid= $name. $this->row->getKey();
+    protected function make_uid(){
+        $this->uid= $this->column->getName(). $this->getKey();
     }
     protected function make_models_and_pagination($relationShip, $perPage){
         $this->models= $this->row->$relationShip()
             ->paginate($perPage, ['*'], $this->uid)
-            ->appends('page', request('page'));
+            ->appends('page', request('page'))
+            ->appends('per_page', request('per_page'))
+        ;
         $this->pagination= str_replace('pagination', 'pagination pagination-sm no-margin pt-2', $this->models->links());
     }
     protected function make_bag($tableHeader, $callback){
@@ -59,12 +58,12 @@ class Relate extends AbstractDisplayer
                    <a href='javascript:void(0)' style='color:inherit'>{$this->value}&nbsp;&nbsp;<i class='fa fa-angle-double-down'></i></a>
                 </span>
                 <div id='grid-template-{$uid}' style='display:none'>
-                    <!--ColumnRelation{$this->rid}Start--> {$html} <!--ColumnRelation{$this->rid}End-->
+                    <!--ColumnRelation{$this->uid}Start--> {$html} <!--ColumnRelation{$this->uid}End-->
                 </div>
                 <div id='grid-expand-{$uid}' style='display:none'>
                     <div id='grid-collapse-{$uid}' class='collapse'>
                         <div style='margin-top:20px'>
-                            <column-relation :uid=`{$uid}` :rid=`{$this->rid}`></column-relation>
+                            <column-relation :uid=`{$uid}`></column-relation>
                         </div>
                     </div>
                 </div>
