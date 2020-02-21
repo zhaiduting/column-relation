@@ -55,11 +55,13 @@ class Relate extends AbstractDisplayer
                 <span id='grid-button-{$uid}' data-inserted='0' data-uid='{$uid}' data-toggle='collapse' data-target='#grid-collapse-{$uid}'>
                    <a href='javascript:void(0)' style='color:inherit'>{$this->value}&nbsp;&nbsp;<i class='fa fa-angle-double-down'></i></a>
                 </span>
-                <div id='grid-template-{$uid}' style='display:none'>$html</div>
+                <div id='grid-template-{$uid}' style='display:none'>
+                    <!--ColumnRelation{$this->uid}Start--> {$html} <!--ColumnRelation{$this->uid}End-->
+                </div>
                 <div id='grid-expand-{$uid}' style='display:none'>
                     <div id='grid-collapse-{$uid}' class='collapse'>
                         <div style='margin-top:20px'>
-                            <column-relation :template-id=`grid-template-{$uid}`></column-relation>
+                            <column-relation :uid=`{$uid}`></column-relation>
                         </div>
                     </div>
                 </div>
@@ -69,7 +71,7 @@ class Relate extends AbstractDisplayer
         }
         if($this->models->lastPage() > 1){  //单页面的情况下，没必要添加分页按钮
             $search= '</tr>';
-            $replace= "</tr><tr><td colspan='100'>{$this->pagination}</td></tr>";
+            $replace= "</tr><tr><td colspan='100' class='column-relation-pagination'><i><b></b></i>{$this->pagination}</td></tr>";
             $html= str_replace_last($search, $replace, $html);
         }
         $this->html= $html;
@@ -79,13 +81,14 @@ class Relate extends AbstractDisplayer
         $script= "
             $('#grid-button-{$this->uid}').on('click', function () {
                 if ($(this).data('inserted') == '0') {
-                    var uid = $(this).data('uid');
-                    var row = $(this).closest('tr');
-                    var html = $('#grid-expand-'+uid).remove().html();
                     var bgcolor= $('{$container}').css('background-color')
-            
-                    row.after(`<tr data-pjax-container='1' style='background-color:\${bgcolor}'><td colspan='100' style='padding:0 !important; border:0;'>\${html}</td></tr>`);
-            
+                    var uid = $(this).data('uid');
+                    
+                    var expand = $('#grid-expand-'+uid).show();
+                    var td= $(`<td colspan='100' style='padding:0 !important; border:0;'></td>`).append(expand);
+                    var tr= $(`<tr data-pjax-container='1' style='background-color:\${bgcolor}'></tr>`).append(td);
+                    $(this).closest('tr').after(tr);
+                    
                     $(this).data('inserted', 1);
                 }
                 

@@ -1912,19 +1912,52 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ColumnRelation",
   props: {
-    templateId: ''
+    uid: ''
   },
   data: function data() {
     return {
       html: ''
     };
   },
+  methods: {
+    fixPagination: function fixPagination(str) {
+      var arr = str.split('<i><b></b></i>');
+      var ret = arr[0];
+
+      if (arr[1]) {
+        ret += arr[1].replace(/<a /g, "<a onclick='return false' ");
+      }
+
+      return ret;
+    },
+    filterHtml: function filterHtml(html) {
+      var arr = html.split('<!--ColumnRelation' + this.uid + 'Start-->');
+      console.log(arr, '<!--ColumnRelation' + this.uid + 'Start-->', html.indexOf('<!--ColumnRelation' + this.uid + 'Start-->'));
+      arr = arr[1].split('<!--ColumnRelation' + this.uid + 'End-->'); // console.log(arr);
+
+      return arr[0];
+    },
+    handleClick: function handleClick($event) {
+      var _this = this;
+
+      var target = $event.target;
+      if (!$(target).closest('td').hasClass('column-relation-pagination')) return;
+      axios.get(target.href).then(function (res) {
+        var html = _this.filterHtml(res.data);
+
+        _this.html = _this.fixPagination(html);
+        console.log(_this.html);
+      });
+    }
+  },
   mounted: function mounted() {
-    this.html = $("#".concat(this.templateId)).remove().html();
-    console.log('mounted');
+    var str = $("#grid-template-".concat(this.uid)).remove().html();
+    this.html = this.fixPagination(str);
   }
 });
 
@@ -2413,7 +2446,16 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { domProps: { innerHTML: _vm._s(_vm.html) } })
+  return _c("div", [
+    _c("div", {
+      domProps: { innerHTML: _vm._s(_vm.html) },
+      on: {
+        click: function($event) {
+          return _vm.handleClick($event)
+        }
+      }
+    })
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
