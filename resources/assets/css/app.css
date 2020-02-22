@@ -452,3 +452,14 @@
 .mx-auto {
   margin-left: auto !important;
 }
+
+.column-relation-table.table > thead > tr > th:first-child,
+.column-relation-table.table > tbody > tr > td:first-child
+{
+  padding-left: 45px;
+  width: 40px;
+}
+
+.fa-angle-up, .fa-angle-double-up {
+  /*color: red;*/
+}

@@ -15,7 +15,7 @@
         }},
         methods:{
             fixPagination(str){
-                let arr= str.split('<i><b></b></i>');
+                let arr= str.split('<i data-split="ColumnRelationPagination"></i>');
                 let ret= arr[0];
                 if(arr[1]){
                     ret += arr[1].replace(/<a /g, "<a onclick='return false' ");
@@ -31,10 +31,14 @@
                 let target= $event.target;
                 if(!target.href || !$(target).closest('td').hasClass('column-relation-pagination'))
                     return;
-                axios.get(target.href).then((res)=>{
-                    let html= this.filterHtml(res.data);
-                    this.html= this.fixPagination(html);
-                })
+                axios.get(target.href)
+                    .gif()
+                    .then((res)=>{
+                        let html= this.filterHtml(res.data);
+                        this.html= this.fixPagination(html);
+                    })
+                    .gif(false)
+                ;
             }
         },
         mounted(){

@@ -46,7 +46,7 @@ class Relate extends AbstractDisplayer
                     $callback($model);
                 return $model->only($fields);
             });
-            return new Table($headers, $models->toArray());
+            return new Table($headers, $models->toArray(), ['my-4', 'column-relation-table']);
         };
     }
     protected function make_html(){
@@ -55,17 +55,13 @@ class Relate extends AbstractDisplayer
             $html= ($this->bag)();
             $html="
                 <span id='grid-button-{$uid}' data-inserted='0' data-uid='{$uid}' data-toggle='collapse' data-target='#grid-collapse-{$uid}'>
-                   <a href='javascript:void(0)' style='color:inherit'>{$this->value}&nbsp;&nbsp;<i class='fa fa-angle-double-down'></i></a>
+                   <a href='javascript:void(0)' style='color:inherit'>{$this->value}<i class='px-2 pb-1 fa fa-angle-double-down'></i></a>
                 </span>
                 <div id='grid-template-{$uid}' style='display:none'>
                     <!--ColumnRelation{$this->uid}Start--> {$html} <!--ColumnRelation{$this->uid}End-->
                 </div>
-                <div id='grid-expand-{$uid}' style='display:none'>
-                    <div id='grid-collapse-{$uid}' class='collapse'>
-                        <div style='margin-top:20px'>
-                            <column-relation :uid=`{$uid}`></column-relation>
-                        </div>
-                    </div>
+                <div id='grid-collapse-{$uid}' class='collapse'>
+                    <column-relation :uid=`{$uid}`></column-relation>
                 </div>
             ";
         }else{
@@ -73,7 +69,7 @@ class Relate extends AbstractDisplayer
         }
         if($this->models->lastPage() > 1){  //单页面的情况下，没必要添加分页按钮
             $search= '</tr>';
-            $replace= "</tr><tr><td colspan='100' class='column-relation-pagination'><i><b></b></i>{$this->pagination}</td></tr>";
+            $replace= "</tr><tr><td colspan='100' class='column-relation-pagination'><i data-split=\"ColumnRelationPagination\"></i>{$this->pagination}</td></tr>";
             $html= str_replace_last($search, $replace, $html);
         }
         $this->html= $html;
@@ -86,15 +82,15 @@ class Relate extends AbstractDisplayer
                     var bgcolor= $('{$container}').css('background-color')
                     var uid = $(this).data('uid');
                     
-                    var expand = $('#grid-expand-'+uid).show();
-                    var td= $(`<td colspan='100' style='padding:0 !important; border:0;'></td>`).append(expand);
-                    var tr= $(`<tr data-pjax-container='1' style='background-color:\${bgcolor}'></tr>`).append(td);
+                    var collapse = $('#grid-collapse-'+uid);
+                    var td= $(`<td colspan='100' style='padding:0; border:0;'></td>`).append(collapse);
+                    var tr= $(`<tr style='background-color:\${bgcolor}'></tr>`).append(td);
                     $(this).closest('tr').after(tr);
                     
                     $(this).data('inserted', 1);
                 }
                 
-                $('i', this).toggleClass('fa-angle-double-down fa-angle-double-up');
+                $('i', this).toggleClass('fa-angle-double-down fa-angle-up');
             });
         ";
         if(request($this->uid)) {
@@ -134,11 +130,14 @@ class Relate extends AbstractDisplayer
     $space= 'vendor/zhaiduting';
     $sym= 'column-relation';
     $file= 'relate';
-    Admin::js("$space/$sym/$file.js");
-    Admin::css("$space/$sym/$file.css");
-    Admin::script("new Vue({el: '#app'});");
 
-    $dir= public_path(). "/$space";
+    Admin::script("
+        $(document.body)
+            .append(`<link rel='stylesheet' href='/$space/$sym/$file.css'>`)
+            .append(`<script src='/$space/$sym/$file.js'>`);
+    ");                                                 //pjax 请求导致 Admin::js(..) 失效？
+
+    $dir= $_SERVER['DOCUMENT_ROOT']. "/$space";         //不要使用 public_path(). "/$space"
     if(!file_exists("$dir/$sym/$file.js")){
         if(!is_dir($dir))
             mkdir($dir, 0777, true);

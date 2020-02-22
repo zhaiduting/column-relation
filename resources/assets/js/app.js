@@ -18,6 +18,8 @@ window.Vue = require('vue');
 Vue.component('column-relation', require('./components/ColumnRelation.vue').default);
 
 
-// const app= new Vue({
-//     el: '#app'
-// });
+new Vue({
+    el: '#app'
+});
+
+Promise.prototype.gif= require('./promiseGif').default;
