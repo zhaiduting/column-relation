@@ -22,4 +22,4 @@ new Vue({
     el: '#app'
 });
 
-Promise.prototype.gif= require('./promiseGif').default;
+Promise.prototype.gif= require('@zhaiduting/promise-gif').default;
