@@ -27,8 +27,10 @@ class Relate extends AbstractDisplayer
     protected function make_models_and_pagination($relationShip, $perPage){
         $this->models= $this->row->$relationShip()
             ->paginate($perPage, ['*'], $this->uid)
-            ->appends('page', request('page'))
-            ->appends('per_page', request('per_page'))
+            ->appends([
+                'page'=>request('page'),
+                'per_page'=>request('per_page')
+            ])
         ;
         $this->pagination= str_replace('pagination', 'pagination pagination-sm no-margin pt-2', $this->models->links());
     }

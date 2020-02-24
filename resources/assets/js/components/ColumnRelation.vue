@@ -23,9 +23,9 @@
                 return ret;
             },
             filterHtml(html){
-                let arr= html.split('<!--ColumnRelation'+ this.uid+ 'Start-->');
-                arr= arr[1].split('<!--ColumnRelation'+ this.uid+ 'End-->');
-                return arr[0];
+                let start= html.indexOf('<!--ColumnRelation'+ this.uid+ 'Start-->');
+                let end= html.indexOf('<!--ColumnRelation'+ this.uid+ 'End-->', start);
+                return html.substring(start, end);
             },
             handleClick($event){
                 let target= $event.target;
