@@ -5,6 +5,7 @@ namespace Zhaiduting\ColumnRelation;
 use Encore\Admin\Admin;
 use Encore\Admin\Grid\Displayers\AbstractDisplayer;
 use Encore\Admin\Widgets\Table;
+use Illuminate\Support\Str;
 
 class Relate extends AbstractDisplayer
 {
@@ -72,7 +73,7 @@ class Relate extends AbstractDisplayer
         if($this->models->lastPage() > 1){  //单页面的情况下，没必要添加分页按钮
             $search= '</tr>';
             $replace= "</tr><tr><td colspan='100' class='column-relation-pagination'><i data-split=\"ColumnRelationPagination\"></i>{$this->pagination}</td></tr>";
-            $html= str_replace_last($search, $replace, $html);
+            $html= Str::replaceLast($search, $replace, $html);
         }
         $this->html= $html;
     }
