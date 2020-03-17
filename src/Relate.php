@@ -140,10 +140,13 @@ class Relate extends AbstractDisplayer
             .append(`<script src='/$space/$sym/$file.js'>`);
     ");                                                 //pjax 请求导致 Admin::js(..) 失效？
 
-    $dir= $_SERVER['DOCUMENT_ROOT']. "/$space";         //不要使用 public_path(). "/$space"
+    $dir= ($_SERVER['DOCUMENT_ROOT'] ?: public_path()). "/$space";
     if(!file_exists("$dir/$sym/$file.js")){
-        if(!is_dir($dir))
-            mkdir($dir, 0777, true);
-        symlink(__DIR__."/../dist", "$dir/$sym");
+        try{
+            if(!is_dir($dir))
+                mkdir($dir, 0777, true);
+            symlink(__DIR__."/../dist", "$dir/$sym");
+
+        }catch (\Exception $e){}
     }
 })();
