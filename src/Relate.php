@@ -134,10 +134,10 @@ class Relate extends AbstractDisplayer
     $sym= 'column-relation';
     $file= 'relate';
 
+    Admin::css("/$space/$sym/$file.css");
     Admin::script("
         $(document.body)
-            .append(`<link rel='stylesheet' href='/$space/$sym/$file.css'>`)
-            .append(`<script src='/$space/$sym/$file.js'>`);
+            .append('<'+'script'+` src='/$space/$sym/$file.js'>`+'<'+'/script>');
     ");                                                 //pjax 请求导致 Admin::js(..) 失效？
 
     $dir= ($_SERVER['DOCUMENT_ROOT'] ?: public_path()). "/$space";
