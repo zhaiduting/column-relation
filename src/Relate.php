@@ -12,10 +12,10 @@ class Relate extends AbstractDisplayer
     protected $uid, $models, $pagination, $bag, $html;
     public static $container= '#pjax-container';
 
-    public function display(string $relationShip = '', array $tableHeader = [] , callable $callback = null, int $perPage = 4)
+    public function display(string $relationShip = '', array $tableHeader = [] , callable $callback = null, int $perPage = 4,  $sql= '')
     {
         $this->make_uid();
-        $this->make_models_and_pagination($relationShip, $perPage);
+        $this->make_models_and_pagination($relationShip, $perPage, $sql);
         $this->make_bag($tableHeader, $callback);
         $this->make_html();
         $this->make_script();
@@ -25,8 +25,9 @@ class Relate extends AbstractDisplayer
     protected function make_uid(){
         $this->uid= $this->column->getName(). $this->getKey();
     }
-    protected function make_models_and_pagination($relationShip, $perPage){
+    protected function make_models_and_pagination($relationShip, $perPage, $sql){
         $this->models= $this->row->$relationShip()
+            ->query($sql)
             ->paginate($perPage, ['*'], $this->uid)
             ->appends([
                 'page'=>request('page'),
