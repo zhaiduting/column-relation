@@ -12,10 +12,10 @@ class Relate extends AbstractDisplayer
     protected $uid, $models, $pagination, $bag, $html;
     public static $container= '#pjax-container';
 
-    public function display(string $relationShip = '', array $tableHeader = [] , callable $callback = null, int $perPage = 4,  $sql= '')
+    public function display(string $relationShip = '', array $tableHeader = [] , callable $callback = null, int $perPage = 4,  array $where= [])
     {
         $this->make_uid();
-        $this->make_models_and_pagination($relationShip, $perPage, $sql);
+        $this->make_models_and_pagination($relationShip, $perPage, $where);
         $this->make_bag($tableHeader, $callback);
         $this->make_html();
         $this->make_script();
@@ -25,15 +25,21 @@ class Relate extends AbstractDisplayer
     protected function make_uid(){
         $this->uid= $this->column->getName(). $this->getKey();
     }
-    protected function make_models_and_pagination($relationShip, $perPage, $sql){
-        $this->models= $this->row->$relationShip()
-            ->query($sql)
+    protected function make_models_and_pagination($relationShip, $perPage, $where){
+        $models= $this->row->$relationShip();
+        $models= empty($where[0]) ? $models :
+            (gettype($where[0]) == 'array'
+                ? $models->where($where)
+                : $models->where([$where])
+            );
+        $models= $models
             ->paginate($perPage, ['*'], $this->uid)
             ->appends([
                 'page'=>request('page'),
                 'per_page'=>request('per_page')
             ])
         ;
+        $this->models= $models;
         $this->pagination= str_replace('pagination', 'pagination pagination-sm no-margin pt-2', $this->models->links());
     }
     protected function make_bag($tableHeader, $callback){
