@@ -12,10 +12,18 @@ class Relate extends AbstractDisplayer
     protected $uid, $models, $pagination, $bag, $html;
     public static $container= '#pjax-container';
 
-    public function display(string $relationShip = '', array $tableHeader = [] , callable $callback = null, int $perPage = 4,  array $where= [])
+    /**
+     * @param string $relationShip
+     * @param array $tableHeader
+     * @param callable|null $callback   格式化函数
+     * @param int $perPage
+     * @param array $where_or_filter    条件查询，可以是数组或者回调函数
+     * @return mixed
+     */
+    public function display(string $relationShip = '', array $tableHeader = [] , callable $callback = null, int $perPage = 4, $where_or_filter= [])
     {
         $this->make_uid();
-        $this->make_models_and_pagination($relationShip, $perPage, $where);
+        $this->make_models_and_pagination($relationShip, $perPage, $where_or_filter);
         $this->make_bag($tableHeader, $callback);
         $this->make_html();
         $this->make_script();
@@ -25,13 +33,23 @@ class Relate extends AbstractDisplayer
     protected function make_uid(){
         $this->uid= $this->column->getName(). $this->getKey();
     }
-    protected function make_models_and_pagination($relationShip, $perPage, $where){
+    protected function make_models_and_pagination($relationShip, $perPage, $where_or_filter){
+        gettype($where_or_filter) == 'object' &&  $where_or_filter instanceof \Closure
+            ? ($filter = $where_or_filter)
+            : ($where = $where_or_filter);
+
         $models= $this->row->$relationShip();
-        $models= empty($where[0]) ? $models :
-            (gettype($where[0]) == 'array'
-                ? $models->where($where)
-                : $models->where([$where])
-            );
+
+        if(isset($where)){
+            $models= empty($where[0]) ? $models :
+                (gettype($where[0]) == 'array'
+                    ? $models->where($where)
+                    : $models->where([$where])
+                );
+        }else if(isset($filter)){
+            $filter($models, $this->getKey());
+        }
+
         $models= $models
             ->paginate($perPage, ['*'], $this->uid)
             ->appends([
