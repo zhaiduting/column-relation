@@ -97,7 +97,7 @@ class Relate extends AbstractDisplayer
         }
         if($this->models->lastPage() > 1){  //单页面的情况下，没必要添加分页按钮
             $search= '</tr>';
-            $replace= "</tr><tr><td colspan='100'><div class='column-relation-pagination float-left pb-2'><i data-split=\"ColumnRelationPagination\"></i>{$this->pagination}</div></td></tr>";
+            $replace= "</tr><tr><td colspan='100' class='column-relation-pagination'><div class='float-left pb-2'><i data-split=\"ColumnRelationPagination\"></i>{$this->pagination}</div></td></tr>";
             $html= Str::replaceLast($search, $replace, $html);
         }
         $this->html= $html;
@@ -163,7 +163,7 @@ class Relate extends AbstractDisplayer
     Admin::script("
         $(document.body)
             .append('<'+'script'+` src='/$space/$sym/$file.js'>`+'<'+'/script>');
-    ");                                                 //pjax 请求导致 Admin::js(..) 失效？
+    ");
 
     $dir= ($_SERVER['DOCUMENT_ROOT'] ?: public_path()). "/$space";
     if(!file_exists("$dir/$sym/$file.js")){

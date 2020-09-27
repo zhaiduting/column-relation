@@ -37,7 +37,6 @@
                         let html= this.filterHtml(res.data);
                         this.html= this.fixPagination(html);
                     })
-                    .gif(false)
                 ;
             }
         },
@@ -47,7 +46,3 @@
         }
     }
 </script>
-
-<style scoped lang="stylus">
-
-</style>
