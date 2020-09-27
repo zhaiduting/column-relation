@@ -460,6 +460,23 @@
   width: 40px;
 }
 
+.column-relation-table.table > thead > tr:hover,
+.column-relation-table.table > tbody > tr:hover
+{
+  background-color: white;
+}
+.column-relation-table.table {
+  background-color: white;
+  border-width: 0;
+}
+.column-relation-table.table th {
+  border-top: 0 dashed #dee2e6;
+  box-shadow: none !important;
+}
+.column-relation-table.table td {
+  border-top: 1px dashed #dee2e6;
+}
+
 .fa-angle-up, .fa-angle-double-up {
   /*color: red;*/
 }

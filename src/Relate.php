@@ -3,7 +3,7 @@
 namespace Zhaiduting\ColumnRelation;
 
 use Encore\Admin\Admin;
-use Encore\Admin\Grid\Displayers\AbstractDisplayer;
+use Encore\Admin\Table\Displayers\AbstractDisplayer;
 use Encore\Admin\Widgets\Table;
 use Illuminate\Support\Str;
 
@@ -58,7 +58,7 @@ class Relate extends AbstractDisplayer
             ])
         ;
         $this->models= $models;
-        $this->pagination= str_replace('pagination', 'pagination pagination-sm no-margin pt-2', $this->models->links());
+        $this->pagination= str_replace('pagination', 'pagination pagination-sm no-margin pt-2', $this->models->links('admin::table.pagination'));
     }
     protected function make_bag($tableHeader, $callback){
         $models= $this->models;
@@ -97,7 +97,7 @@ class Relate extends AbstractDisplayer
         }
         if($this->models->lastPage() > 1){  //单页面的情况下，没必要添加分页按钮
             $search= '</tr>';
-            $replace= "</tr><tr><td colspan='100' class='column-relation-pagination'><i data-split=\"ColumnRelationPagination\"></i>{$this->pagination}</td></tr>";
+            $replace= "</tr><tr><td colspan='100'><div class='column-relation-pagination float-left pb-2'><i data-split=\"ColumnRelationPagination\"></i>{$this->pagination}</div></td></tr>";
             $html= Str::replaceLast($search, $replace, $html);
         }
         $this->html= $html;
