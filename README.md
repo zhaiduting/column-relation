@@ -7,7 +7,7 @@ Column-relation extension for laravel-admin
 ```
 // Add the following code to the file app\Admin\bootstrap.php
 
-use Encore\Admin\Grid\Column;
+use Encore\Admin\Table\Column;
 use Zhaiduting\ColumnRelation\Relate;
 
 Column::extend('relate', Relate::class);
@@ -15,11 +15,25 @@ Column::extend('relate', Relate::class);
 # 使用
 在 laravel-admin 的控制器中，可以类似于下面这样使用 relate(..)
 ```
-// Use relate(..) in a controller of admin as follows
+// e.g: use relate(..) in the app\Admin\Controllers\RoleController.php as follows
 
-$grid = new Grid(new Category());
+protected function table()
+{
+    $table = new Table(new Role());
 
-$grid->column('name', '类别')
-     ->relate('topics', ['id', 'title'=>'话题']);
+    $table->column('id', __('Id'));
+    $table->column('name', '角色名称')
+        ->relate('users', ['id', 'name'=> '用户'], function($user){
+            $user->name=
+                "<a target='_blank' href='". route('users.show', $user->id). "'>".
+                "<img class='img-thumbnail' width='30px' src='".
+                $user->avatar ."'> ".
+                $user->name.
+                "</a>";
+        });
+    $table->column('permissions', '权限')->pluck('name')->label('default');
+
+    return $table;
+}
 ```
 ![example.gif](https://github.com/zhaiduting/column-relation/blob/master/example.gif)
